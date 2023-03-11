@@ -1,0 +1,51 @@
+version: "3.8"
+services:
+  # Database - Mongo DB
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    environment:
+      - AUTH=yes
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}    
+      - MONGO_INITDB_DATABASE=${MONGO_DB_DATABASE}  
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_DB_DATABASE=${MONGO_DB_DATABASE}
+    networks:
+      - development-network
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+      - ${MONGO_HOST_DATA}/data:/data/db
+      - ${MONGO_HOST_DATA}/log:/var/log/mongodb
+    ports:
+      - "27017:27017"
+
+  # Database Manager
+  mongo-express:
+    container_name: mongo-express
+    image: mongo-express:latest
+    restart: always
+    depends_on:
+      - mongodb
+    networks:
+      - development-network
+    environment:
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_BASICAUTH_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - ME_CONFIG_MONGODB_PORT=27017
+    ports:
+      - "8081:8081"
+    volumes:
+      - ${MONGO_HOST_DATA}/data:/data/db
+    links:
+      - mongodb
+
+networks:  
+  development-network:
+    name: development-network
+    driver: bridge
