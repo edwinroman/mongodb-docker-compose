@@ -1,4 +1,5 @@
-version: "3.8"
+name: mongodb-docker-compose
+
 services:
   # Database - Mongo DB
   mongodb:
@@ -25,7 +26,6 @@ services:
   mongo-express:
     container_name: mongo-express
     image: mongo-express:latest
-    restart: always
     depends_on:
       - mongodb
     networks:
@@ -41,7 +41,7 @@ services:
     ports:
       - "8081:8081"
     volumes:
-      - ${MONGO_HOST_DATA}/data:/data/db
+      - ${MONGO_HOST_DATA}/mongo-express-data:/data/db
     links:
       - mongodb
 

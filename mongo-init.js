@@ -5,8 +5,16 @@ db.createUser({
   pwd: process.env.MONGO_DB_PASSWORD,
   roles: [
     {
-      role: "dbAdmin",
+      role: "dbOwner",
       db: process.env.MONGO_DB_DATABASE,
-    },
+    }
   ],
 });
+
+
+db = new Mongo().getDB("admin");
+db.grantRolesToUser(process.env.MONGO_INITDB_ROOT_USERNAME,
+  [
+    { role: "dbOwner", db: process.env.MONGO_DB_DATABASE }
+  ]
+);
